@@ -34,7 +34,7 @@ interface OmdbSearchItemRaw {
 
 export default function App() {
   const [movies, setMovies] = useState<MovieOmdb[]>([]);
-  const [watched, setWatched] = useState<Watched[]>(tempWatchedData);
+  const [watched, setWatched] = useState<Watched[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -94,6 +94,14 @@ export default function App() {
     setSelectedId(null);
   }
 
+  function handleAddWatched(movie: Watched) {
+    setWatched(watched => [...watched, movie]);
+  }
+
+  function handleDeleteWatchedMovie(id: string) {
+    setWatched(movies => movies.filter(movie => movie.imdbID !== id));
+  }
+
   useEffect(
     function () {
       if (!debouncedQuery.length) {
@@ -126,11 +134,16 @@ export default function App() {
             <MovieDetails
               onCloseMovie={closeHandleMovie}
               selectedId={selectedId}
+              onAddWatched={handleAddWatched}
+              watchedMovies={watched}
             />
           ) : (
             <>
               <Summary watched={watched} />
-              <WatchedMovieList watched={watched} />
+              <WatchedMovieList
+                onDeleteWatchedMovie={handleDeleteWatchedMovie}
+                watched={watched}
+              />
             </>
           )}
         </Box>
