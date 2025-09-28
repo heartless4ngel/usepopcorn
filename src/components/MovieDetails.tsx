@@ -88,6 +88,15 @@ export default function MovieDetails({
     })();
   }, [selectedId]);
 
+  useEffect(() => {
+    if (!movie) return;
+    document.title = `Movie | ${movie.Title}`;
+
+    return () => {
+      document.title = "UsePopcorn";
+    };
+  }, [movie]);
+
   return (
     <div className="details">
       {isLoading && <Loader />}
