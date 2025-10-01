@@ -1,6 +1,6 @@
 import { NavBar } from "./NavBar";
 import { Main } from "./Main";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   API_KEY,
   tempMovieData,
@@ -41,9 +41,11 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const debouncedQuery = useDebouncedValue(query, 500);
   const cacheRef = useRef<Map<string, MovieOmdb[]>>(new Map());
-  const abortRef = useRef<AbortController | null>(null);
+  const controllerRef = useRef<AbortController | null>(null); // Usa useRef
 
-  async function fetchMovies(title: string = ""): Promise<void> {
+  const fetchMovies = useCallback(async function (
+    title: string = ""
+  ): Promise<void> {
     try {
       setIsLoading(true);
       setError(null);
@@ -54,13 +56,11 @@ export default function App() {
         return;
       }
 
-      if (abortRef.current) abortRef.current.abort();
-      const controller = new AbortController();
-      abortRef.current = controller;
+      controllerRef.current = new AbortController();
 
       const res = await fetch(
         `http://www.omdbapi.com/?s=${title}&apikey=${API_KEY}`,
-        { signal: controller.signal }
+        { signal: controllerRef.current.signal }
       );
 
       if (!res.ok) throw new Error("Something went wrong with fetching movies");
@@ -84,7 +84,26 @@ export default function App() {
     } finally {
       setIsLoading(false);
     }
-  }
+  },
+  []);
+
+  useEffect(
+    function () {
+      if (!debouncedQuery.length) {
+        setMovies([]);
+        setError(null);
+        return;
+      }
+      if (debouncedQuery.length > 2) fetchMovies(debouncedQuery);
+
+      return () => {
+        if (controllerRef.current) {
+          controllerRef.current.abort();
+        }
+      };
+    },
+    [debouncedQuery, fetchMovies]
+  );
 
   function handleSelectMovie(id: string) {
     setSelectedId(selectedId => (id === selectedId ? null : id));
@@ -101,18 +120,6 @@ export default function App() {
   function handleDeleteWatchedMovie(id: string) {
     setWatched(movies => movies.filter(movie => movie.imdbID !== id));
   }
-
-  useEffect(
-    function () {
-      if (!debouncedQuery.length) {
-        setMovies([]);
-        setError(null);
-        return;
-      }
-      if (debouncedQuery.length > 2) fetchMovies(debouncedQuery);
-    },
-    [debouncedQuery]
-  );
 
   return (
     <>
