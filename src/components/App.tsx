@@ -1,13 +1,7 @@
 import { NavBar } from "./NavBar";
 import { Main } from "./Main";
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  API_KEY,
-  tempMovieData,
-  tempWatchedData,
-  type MovieOmdb,
-  type Watched,
-} from "../utils/data";
+import { API_KEY, type MovieOmdb, type Watched } from "../utils/data";
 import { Logo } from "./Logo";
 import { NumResults } from "./NumResults";
 import { Search } from "./Search";
@@ -41,8 +35,7 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const debouncedQuery = useDebouncedValue(query, 500);
   const cacheRef = useRef<Map<string, MovieOmdb[]>>(new Map());
-  const controllerRef = useRef<AbortController | null>(null); // Usa useRef
-
+  const controllerRef = useRef<AbortController | null>(null);
   const fetchMovies = useCallback(async function (
     title: string = ""
   ): Promise<void> {
@@ -86,7 +79,6 @@ export default function App() {
     }
   },
   []);
-
   useEffect(
     function () {
       if (!debouncedQuery.length) {
@@ -94,8 +86,10 @@ export default function App() {
         setError(null);
         return;
       }
-      if (debouncedQuery.length > 2) fetchMovies(debouncedQuery);
-
+      if (debouncedQuery.length > 2) {
+        closeHandleMovie();
+        fetchMovies(debouncedQuery);
+      }
       return () => {
         if (controllerRef.current) {
           controllerRef.current.abort();

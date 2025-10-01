@@ -42,6 +42,19 @@ export default function MovieDetails({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userRating, setUserRating] = useState(0);
+  useEffect(() => {
+    function callback(e: KeyboardEvent) {
+      if (e.code === "Escape") {
+        onCloseMovie();
+      }
+    }
+    document.addEventListener("keydown", callback);
+
+    return () => {
+      document.removeEventListener("keydown", callback);
+    };
+  }, [onCloseMovie]);
+
   const isMovieAlreadyAdded = watchedMovies.some(
     movie => movie.imdbID === selectedId
   );
