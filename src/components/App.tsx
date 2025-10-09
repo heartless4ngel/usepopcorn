@@ -28,7 +28,10 @@ interface OmdbSearchItemRaw {
 
 export default function App() {
   const [movies, setMovies] = useState<MovieOmdb[]>([]);
-  const [watched, setWatched] = useState<Watched[]>([]);
+  const [watched, setWatched] = useState<Watched[]>(() => {
+    const stored = localStorage.getItem("watched");
+    return stored ? (JSON.parse(stored) as Watched[]) : [];
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -98,6 +101,9 @@ export default function App() {
     },
     [debouncedQuery, fetchMovies]
   );
+  useEffect(() => {
+    localStorage.setItem("watched", JSON.stringify(watched));
+  }, [watched]);
 
   function handleSelectMovie(id: string) {
     setSelectedId(selectedId => (id === selectedId ? null : id));
