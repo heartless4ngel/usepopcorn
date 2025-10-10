@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import type { MovieOmdb } from "./data";
 
 export const average = (arr: number[]) =>
@@ -7,15 +6,6 @@ export const average = (arr: number[]) =>
       acc + cur / arr.length,
     0
   );
-
-export function useDebouncedValue<T>(value: T, delay = 400) {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const id = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(id);
-  }, [value, delay]);
-  return debounced;
-}
 
 const MAX_ITEMS = 50;
 const normalize = (q: string) => q.trim().toLowerCase();
