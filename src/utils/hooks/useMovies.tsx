@@ -40,7 +40,7 @@ export default function useMovies(query: string, callback?: () => void) {
           }
 
           const res = await fetch(
-            `http://www.omdbapi.com/?s=${debouncedQuery}&apikey=${API_KEY}`,
+            `https://www.omdbapi.com/?s=${debouncedQuery}&apikey=${API_KEY}`,
             { signal: controller.signal }
           );
 

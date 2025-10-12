@@ -3,6 +3,7 @@ import { API_KEY, type Watched } from "../utils/data";
 import { Loader } from "./Loader";
 import { ErrorMessage } from "./ErrorMessage";
 import StarRating from "./StarRating";
+import useKey from "../utils/hooks/useKey";
 
 interface OdmbIdSearchMovie {
   imdbID: string;
@@ -42,18 +43,12 @@ export default function MovieDetails({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userRating, setUserRating] = useState(0);
-  useEffect(() => {
-    function callback(e: KeyboardEvent) {
-      if (e.code === "Escape") {
-        onCloseMovie();
-      }
-    }
-    document.addEventListener("keydown", callback);
 
-    return () => {
-      document.removeEventListener("keydown", callback);
-    };
-  }, [onCloseMovie]);
+  useKey("keydown", e => {
+    if (e.code === "Escape") {
+      onCloseMovie();
+    }
+  });
 
   const isMovieAlreadyAdded = watchedMovies.some(
     movie => movie.imdbID === selectedId
@@ -85,7 +80,7 @@ export default function MovieDetails({
       setIsLoading(true);
       try {
         const res = await fetch(
-          `http://www.omdbapi.com/?i=${selectedId}&apikey=${API_KEY}`
+          `https://www.omdbapi.com/?i=${selectedId}&apikey=${API_KEY}`
         );
         const data: OdmbIdSearchResponse = await res.json();
 
