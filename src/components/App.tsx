@@ -1,6 +1,6 @@
 import { NavBar } from "./NavBar";
 import { Main } from "./Main";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { type Watched } from "../utils/data";
 import { Logo } from "./Logo";
 import { NumResults } from "./NumResults";
@@ -13,12 +13,9 @@ import { Loader } from "./Loader";
 import { ErrorMessage } from "./ErrorMessage";
 import MovieDetails from "./MovieDetails";
 import useMovies from "../utils/hooks/useMovies";
+import useLocalStorageState from "../utils/hooks/useLocalStorageState";
 
 export default function App() {
-  const [watched, setWatched] = useState<Watched[]>(() => {
-    const stored = localStorage.getItem("watched");
-    return stored ? (JSON.parse(stored) as Watched[]) : [];
-  });
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -27,10 +24,7 @@ export default function App() {
   }, []);
 
   const { movies, isLoading, error } = useMovies(query, closeHandleMovie);
-
-  useEffect(() => {
-    localStorage.setItem("watched", JSON.stringify(watched));
-  }, [watched]);
+  const [watched, setWatched] = useLocalStorageState<Watched[]>([], "watched");
 
   function handleSelectMovie(id: string) {
     setSelectedId(selectedId => (id === selectedId ? null : id));
